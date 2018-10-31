@@ -1,0 +1,10 @@
+*~
+*.pro.user
+*.pro.user.*
+*.qm
+userdaemonAdaptor.*
+userdaemonInterface.*
+daemonAdaptor.*
+daemonInterface.*
+settingsuiAdaptor.*
+settingsuiInterface.*

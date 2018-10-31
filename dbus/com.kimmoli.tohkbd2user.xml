@@ -1,0 +1,54 @@
+<!DOCTYPE node PUBLIC "-//freedesktop//DTD D-BUS Object Introspection 1.0//EN" "http://www.freedesktop.org/standards/dbus/1.0/introspect.dtd">
+<node>
+    <interface name="com.kimmoli.tohkbd2user">
+        <method name="getActiveLayout">
+            <arg name="value" type="s" direction="out" />
+        </method>
+        <method name="setActiveLayout">
+            <arg name="value" type="s" direction="in" />
+        </method>
+        <method name="getOrientationLock">
+            <arg name="value" type="s" direction="out" />
+        </method>
+        <method name="setOrientationLock">
+            <arg name="value" type="s" direction="in" />
+        </method>
+        <method name="launchApplication">
+            <arg name="desktopFilename" type="s" direction="in" />
+        </method>
+        <method name="showKeyboardConnectionNotification">
+            <arg name="connected" type="b" direction="in" />
+        </method>
+        <method name="showTaskSwitcher" />
+        <method name="nextAppTaskSwitcher" />
+        <method name="hideTaskSwitcher" />
+        <method name="actionWithRemorse">
+            <arg name="action" type="s" direction="in" />
+        </method>
+        <method name="getVersion">
+            <arg name="value" type="s" direction="out" />
+        </method>
+        <method name="takeScreenShot" />
+        <method name="getActivePhysicalLayout">
+            <arg name="value" type="s" direction="out" />
+        </method>
+        <method name="getPathTo">
+            <arg name="file" type="s" direction="in" />
+            <arg name="path" type="s" direction="out" />
+        </method>
+        <method name="showUnsupportedLayoutNotification" />
+        <method name="installKeymaps">
+            <arg name="overwrite" type="b" direction="in" />
+        </method>
+        <method name="setKeymapLayout">
+            <arg name="value" type="s" direction="in" />
+        </method>
+        <method name="setKeymapVariant">
+            <arg name="value" type="s" direction="in" />
+        </method>
+        <method name="quit" />
+        <signal name="physicalLayoutChanged">
+            <arg name="layout" type="s" direction="out" />
+        </signal>
+    </interface>
+</node>

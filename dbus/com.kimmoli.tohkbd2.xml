@@ -1,0 +1,24 @@
+<!DOCTYPE node PUBLIC "-//freedesktop//DTD D-BUS Object Introspection 1.0//EN" "http://www.freedesktop.org/standards/dbus/1.0/introspect.dtd">
+<node>
+    <interface name="com.kimmoli.tohkbd2">
+        <method name="getVersion">
+            <arg name="value" type="s" direction="out" />
+        </method>
+        <method name="quit" />
+        <method name="setShortcut">
+            <arg name="key" type="s" direction="in" />
+            <arg name="appPath" type="s" direction="in" />
+        </method>
+        <method name="setShortcutsToDefault" />
+        <method name="setSetting">
+            <arg name="key" type="s" direction="in" />
+            <arg name="value" type="v" direction="in" />
+        </method>
+        <method name="forceKeymapReload">
+            <arg name="layout" type="s" direction="in" />
+        </method>
+        <signal name="keyboardConnectedChanged">
+            <arg name="connected" type="b" direction="out" />
+        </signal>
+    </interface>
+</node>
