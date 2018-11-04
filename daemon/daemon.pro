@@ -1,4 +1,4 @@
-TARGET = harbour-tohkbd2
+TARGET = harbour-taskswitcher
 
 QT += dbus network
 QT -= gui

@@ -3,14 +3,14 @@
 # (C) kimmoli 2014-2015
 #
 
-Name:       harbour-ambience-tohkbd2
+Name:       harbour-taskswitcher
 
 %{!?qtc_qmake:%define qtc_qmake %qmake}
 %{!?qtc_qmake5:%define qtc_qmake5 %qmake5}
 %{!?qtc_make:%define qtc_make make}
 %{?qtc_builddir:%define _builddir %qtc_builddir}
 
-Summary:    The OtherHalf Keyboard v2
+Summary:    Bluetooth keyboard taskswitcher
 Version:    0.0.devel
 Release:    1
 Group:      Qt/Qt
@@ -57,59 +57,47 @@ desktop-file-install --delete-original \
 
 %files
 %defattr(644,root,root,755)
-%attr(755,root,root) %{_bindir}/harbour-tohkbd2
-%attr(755,root,root) %{_bindir}/harbour-tohkbd2-settingsui
-%attr(755,root,root) %{_bindir}/harbour-tohkbd2-user
-/%{_lib}/systemd/system/
-%config %{_sysconfdir}/udev/rules.d/
-%config %{_sysconfdir}/dbus-1/system.d/
-%{_datadir}/maliit/plugins/com/jolla/layouts/
-%{_datadir}/harbour-tohkbd2-user/
-%{_datadir}/dbus-1/
-%{_datadir}/harbour-tohkbd2-settingsui/
-%{_datadir}/applications/
-%{_datadir}/icons/hicolor/86x86/apps/
-%{_datadir}/ambience/%{name}/%{name}.ambience
-%{_datadir}/ambience/%{name}/images/%{name}.jpg
-%{_datadir}/lipstick/notificationcategories/
+%attr(755,root,root) %{_bindir}/harbour-taskswitcher
+%attr(755,root,root) %{_bindir}/harbour-taskswitcher-user
+%{_datadir}/harbour-taskswitcher-user/
+%{_datadir}/applications
 
-%post
-DBUS_SESSION_BUS_ADDRESS="unix:path=/run/user/100000/dbus/user_bus_socket" \
-    dbus-send --type=method_call --dest=org.freedesktop.DBus / org.freedesktop.DBus.ReloadConfig
-#restart maliit
-systemctl-user restart maliit-server
-#reload udev rules
-udevadm control --reload
+#%post
+#DBUS_SESSION_BUS_ADDRESS="unix:path=/run/user/100000/dbus/user_bus_socket" \
+#    dbus-send --type=method_call --dest=org.freedesktop.DBus / org.freedesktop.DBus.ReloadConfig
+##restart maliit
+#systemctl-user restart maliit-server
+##reload udev rules
+#udevadm control --reload
 # if tohkbd2 is connected, start daemon now
 # vendor id 6537 = 0x1989 = dirkvl
 # product id 3 = tohkbd2
-if [ -e /sys/devices/platform/toh-core.0/vendor ]; then
-    if grep -q 6537 /sys/devices/platform/toh-core.0/vendor ; then
-        if grep -q 3 /sys/devices/platform/toh-core.0/product ; then
-            systemctl start harbour-tohkbd2.service
-        fi
-    fi
-fi
-%_ambience_post
+#if [ -e /sys/devices/platform/toh-core.0/vendor ]; then
+#    if grep -q 6537 /sys/devices/platform/toh-core.0/vendor ; then
+#        if grep -q 3 /sys/devices/platform/toh-core.0/product ; then
+#            systemctl start harbour-tohkbd2.service
+#        fi
+#    fi
+#fi
 
-%pre
+#%pre
 # In case of update, stop and disable first
-if [ "$1" = "2" ]; then
-    systemctl stop harbour-tohkbd2.service
-    systemctl disable harbour-tohkbd2.service
-    udevadm control --reload
-fi
+#if [ "$1" = "2" ]; then
+#    systemctl stop harbour-tohkbd2.service
+#    systemctl disable harbour-tohkbd2.service
+#    udevadm control --reload
+#fi
 
-%preun
-# in case of complete removal, stop and disable
-if [ "$1" = "0" ]; then
-    systemctl stop harbour-tohkbd2.service
-    systemctl disable harbour-tohkbd2.service
-    udevadm control --reload
-fi
+#%preun
+## in case of complete removal, stop and disable
+#if [ "$1" = "0" ]; then
+#    systemctl stop harbour-tohkbd2.service
+#    systemctl disable harbour-tohkbd2.service
+#    udevadm control --reload
+#fi
 
-%postun
-DBUS_SESSION_BUS_ADDRESS="unix:path=/run/user/100000/dbus/user_bus_socket" \
-    dbus-send --type=method_call --dest=org.freedesktop.DBus / org.freedesktop.DBus.ReloadConfig
+#%postun
+#DBUS_SESSION_BUS_ADDRESS="unix:path=/run/user/100000/dbus/user_bus_socket" \
+#    dbus-send --type=method_call --dest=org.freedesktop.DBus / org.freedesktop.DBus.ReloadConfig
 #restart maliit
-systemctl-user restart maliit-server
+#systemctl-user restart maliit-server

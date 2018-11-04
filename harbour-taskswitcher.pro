@@ -3,7 +3,7 @@
 #
 TEMPLATE = subdirs
 CONFIG = ordered
-SUBDIRS = dbus user-daemon daemon
+SUBDIRS = user-daemon daemon
 OTHER_FILES =
 
 DISTFILES += \
