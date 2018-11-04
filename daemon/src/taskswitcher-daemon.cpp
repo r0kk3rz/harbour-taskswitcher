@@ -18,6 +18,23 @@
 static void daemonize();
 static void signalHandler(int sig);
 
+/*
+*
+ * Opens the keyboard device file
+ *
+ * @param  deviceFile   the path to the keyboard device file
+ * @return              the file descriptor on success, error code on failure
+ */
+static int openKeyboardDeviceFile(char *deviceFile) {
+   int kbd_fd = open(deviceFile, O_RDONLY);
+   if (kbd_fd == -1) {
+      qDebug() <<  strerror(errno));
+      exit(-1);
+   }
+
+   return kbd_fd;
+}
+
 int main(int argc, char **argv)
 {
     QCoreApplication app(argc, argv);
@@ -27,7 +44,7 @@ int main(int argc, char **argv)
     setlinebuf(stdout);
     setlinebuf(stderr);
 
-    printf("Starting tohkbd daemon version %s\n", APPVERSION);
+    printf("Starting taskswitcher daemon version %s\n", APPVERSION);
 
     /* Check that we can connect to dbus systemBus and sessionBus */
 
@@ -52,6 +69,7 @@ int main(int argc, char **argv)
 
     printf("Connected to D-Bus sessionbus\n");
 
+    /*
     Tohkbd tohkbd;
 
     /* Register to dbus systemBus */
@@ -75,7 +93,8 @@ int main(int argc, char **argv)
      */
     dbusSystemBus.connect("com.nokia.mce", "/com/nokia/mce/signal", "com.nokia.mce.signal", "display_status_ind",
                           &tohkbd, SLOT(handleDisplayStatus(const QDBusMessage&)));
-
+    */
+    
     return app.exec();
 }
 
