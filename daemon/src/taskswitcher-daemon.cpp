@@ -16,6 +16,8 @@
 #include <QtCore/QCoreApplication>
 #include <QDBusConnection>
 #include <QDBusError>
+#include <QDBusInterface>
+
 #include <QDebug>
 
 static void daemonize();
@@ -24,6 +26,7 @@ static void signalHandler(int sig);
 #define KEY_RELEASE 0
 #define KEY_PRESS 1
 typedef struct input_event input_event;
+#define SERVICE_NAME "com.kimmoli.tohkbd2user"
 
 #define ARRAY_SIZE(arr) (sizeof(arr)/sizeof(arr[0]))
 #define UNKNOWN_KEY "\0"
@@ -163,13 +166,17 @@ int main(int argc, char **argv)
 
     printf("Connected to D-Bus sessionbus\n");
 
-    int kbd_fd = openKeyboardDeviceFile("/dev/input/event11");
+    int kbd_fd = openKeyboardDeviceFile("/dev/input/event12");
     //assert(kbd_fd > 0);
+    qDebug() << "fd:" << kbd_fd;
 
     uint8_t shift_pressed = 0;
     input_event event;
     bool alt_pressed = false;
-
+    bool taskSwitcherVisible  = false;
+    
+    QDBusInterface iface(SERVICE_NAME, "/", "", QDBusConnection::sessionBus());
+    
     while (read(kbd_fd, &event, sizeof(input_event)) > 0) {
         if (event.type == EV_KEY) {
             if (event.value == KEY_PRESS) {
@@ -180,20 +187,19 @@ int main(int argc, char **argv)
                 } else if (strcmp(name, "<Tab>") == 0) {
                     if (alt_pressed) {
                         qDebug() << "alt-tab pressed";
-#if 0
+
                         if (!taskSwitcherVisible)
                         {
                             /* show taskswitcher and advance one app */
                             taskSwitcherVisible = true;
-                            tohkbd2user->nextAppTaskSwitcher();
-                            tohkbd2user->showTaskSwitcher();
+                            iface.call("nextAppTaskSwitcher");
+                            iface.call("showTaskSwitcher");
                         }
                         else
                         {
                             /* Toggle to next app */
-                            tohkbd2user->nextAppTaskSwitcher();
+                            iface.call("showTaskSwitcher");
                         }
-#endif
                     }
                 }
             } else if (event.value == KEY_RELEASE) {

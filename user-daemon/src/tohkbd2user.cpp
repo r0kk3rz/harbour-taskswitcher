@@ -23,7 +23,7 @@
 #include <sailfishapp.h>
 
 #include "userdaemon.h"
-#include "../dbus/src/userdaemonAdaptor.h"
+//#include "../dbus/src/userdaemonAdaptor.h"
 #include "viewhelper.h"
 #include "applauncher.h"
 #include "screenshot.h"
@@ -68,7 +68,7 @@ int main(int argc, char **argv)
     printf("tohkbd2-user: Locale is %s\n", qPrintable(QLocale::system().name()));
 
     UserDaemon rw;
-    new Tohkbd2userAdaptor(&rw);
+    //new Tohkbd2userAdaptor(&rw);
 
     rw.registerDBus();
 
