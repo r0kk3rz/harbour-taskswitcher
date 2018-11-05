@@ -122,7 +122,7 @@ char *getKeyText(uint16_t code, uint8_t shift_pressed) {
 void Worker::readKeyboard(const QString &device)
 {
     qDebug() << "openeing device:" << device;
-    int kbd_fd = openKeyboardDeviceFile(device);
+    int kbd_fd = openKeyboardDeviceFile(device.toLocal8Bit().data());
     //assert(kbd_fd > 0);
     qDebug() << "fd:" << kbd_fd;
 
