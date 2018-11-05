@@ -15,9 +15,13 @@ INSTALLS += target
 message($${DEFINES})
 
 SOURCES += \
-    src/taskswitcher-daemon.cpp
+    src/taskswitcher-daemon.cpp \
+    src/eventhandler.cpp \
+    src/worker.cpp
 
-HEADERS +=
+HEADERS += \
+    src/eventhandler.h \
+    src/worker.h
 
 OTHER_FILES += \
 
