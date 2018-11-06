@@ -140,10 +140,7 @@ void Worker::readKeyboard(const QString &device)
                 } else if (strcmp(name, "<Tab>") == 0) {
                     if (alt_pressed) {
                         qDebug() << "alt-tab pressed";
-
                         emit altTabPressed();
-
-
                     }
                 }
             } else if (event.value == KEY_RELEASE) {
@@ -151,6 +148,7 @@ void Worker::readKeyboard(const QString &device)
                 qDebug() << "Released" << name;
                 if (strcmp(name, "<LAlt>") == 0) {
                     alt_pressed = false;
+                    emit altReleased();
                 }
             }
         }

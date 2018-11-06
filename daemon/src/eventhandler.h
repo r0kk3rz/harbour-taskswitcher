@@ -15,6 +15,7 @@ class EventHandler : public QObject
     ~EventHandler();
 
     Q_SLOT void altTabPressed();
+    Q_SLOT void altReleased();
     Q_SIGNAL void start(const QString &device);
     
     private:

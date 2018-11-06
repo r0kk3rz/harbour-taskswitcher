@@ -12,6 +12,7 @@ public slots:
 
 signals:
     void altTabPressed();
+    void altReleased();
 };
 
 #endif

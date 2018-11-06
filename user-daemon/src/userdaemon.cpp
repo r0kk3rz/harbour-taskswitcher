@@ -62,14 +62,14 @@ void UserDaemon::registerDBus()
             return;
         }
 
-        if (!connection.registerObject(PATH, this))
+        if (!connection.registerObject(PATH, this, QDBusConnection::ExportAllSlots))
         {
             QCoreApplication::quit();
             return;
         }
-        m_dbusRegistered = true;
+         m_dbusRegistered = true;
 
-        printf("tohkbd2-user: succesfully registered to dbus sessionBus \"%s\"\n", SERVICE);
+        printf("taskswitcher-user: succesfully registered to dbus sessionBus \"%s\"\n", SERVICE);
     }
 }
 
