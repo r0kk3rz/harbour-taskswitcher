@@ -56,9 +56,7 @@ int main(int argc, char **argv)
 
     printf("Connected to D-Bus sessionbus\n");
 
-
     EventHandler eventHandler;
-    eventHandler.start("/dev/input/event11");
     return app.exec();
 }
 

@@ -74,10 +74,11 @@ class Worker : public QObject
 
 public slots:
     void readKeyboard(const QString &device);
-    void finished();
+
 signals:
     void altTabPressed();
     void altReleased();
+    void finished();
 };
 
 #endif

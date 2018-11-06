@@ -4,6 +4,7 @@
 #include <QDBusError>
 #include <QDBusInterface>
 #include <QDebug>
+#include <QFile>
 
 #define SERVICE_NAME "com.piggz.taskswitcher"
 
@@ -30,6 +31,7 @@ EventHandler::~EventHandler() {
 
 void EventHandler::startWorker(const QString &device)
 {
+    m_timer->stop();
     start(device);
 }
 
@@ -69,11 +71,20 @@ void EventHandler::altReleased()
 void EventHandler::workerFinished()
 {
     qDebug() << "Worker has finished";
+    m_timer->start();
 }
 
 void EventHandler::checkForDevice()
 {
+    QString deviceName = "KBMAG7BK";
 
+    QString deviceFile = getDeviceFile(deviceName);
+
+    qDebug() << "Looking for " << deviceName << "found:" << deviceFile;
+
+    if (deviceFile.startsWith("/dev/input")) {
+        startWorker(deviceFile);
+    }
 }
 
 QString EventHandler::getDeviceFile(const QString &name)
@@ -83,23 +94,23 @@ QString EventHandler::getDeviceFile(const QString &name)
     QString devicepath;
 
     QFile file("/proc/bus/input/devices");
-    if (!file.open(QIODevice::ReadOnly | QIODevice::Text))
-        return;
+    if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
+        qDebug() << "Unable to open devices list";
+        return QString();
+    }
 
     QTextStream in(&file);
     while (!in.atEnd()) {
         QString line = in.readLine();
 
-        if (!name_found)
-        {
+        qDebug()  << line;
+        if (!name_found) {
             if (line.contains(name)) {
                 name_found = true;
+                qDebug() << "found name";
             }
-        }
-        else
-        {
-            if (line.contains("event"))
-            {
+        } else {
+            if (line.contains("event")) {
                 eventstring = line.mid(line.indexOf("event"));
                 eventstring = eventstring.mid(0, eventstring.indexOf(' '));
                 break;
@@ -107,9 +118,10 @@ QString EventHandler::getDeviceFile(const QString &name)
         }
     }
 
-    devicepath = "/dev/input/" + eventstring;
+    if (eventstring.startsWith("event")) {
+        devicepath = "/dev/input/" + eventstring;
+    }
     qDebug() <<  "devicepath:" << devicepath;
 
     return devicepath;
-
 }

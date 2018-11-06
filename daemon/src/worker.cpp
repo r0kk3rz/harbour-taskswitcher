@@ -26,7 +26,6 @@ static int openKeyboardDeviceFile(char *deviceFile) {
     int kbd_fd = open(deviceFile, O_RDONLY);
     if (kbd_fd == -1) {
         qDebug() <<  strerror(errno);
-        exit(-1);
     }
 
     return kbd_fd;
@@ -59,6 +58,12 @@ void Worker::readKeyboard(const QString &device)
     qDebug() << "opening device:" << device;
     int kbd_fd = openKeyboardDeviceFile(device.toLocal8Bit().data());
     qDebug() << "fd:" << kbd_fd;
+
+    if (kbd_fd <= 0) {
+        qDebug() << "Unable to open device";
+        emit finished();
+        return;
+    }
 
     uint8_t shift_pressed = 0;
     input_event event;

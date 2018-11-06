@@ -14,8 +14,6 @@ class EventHandler : public QObject
 public:
     EventHandler();
     ~EventHandler();
-
-    Q_SIGNAL void start(const QString &device);
     
 private:
     void startWorker(const QString &device);
@@ -24,6 +22,8 @@ private:
     Q_SLOT void altReleased();
     Q_SLOT void workerFinished(); //probably the device disappeared
     Q_SLOT void checkForDevice();
+
+    Q_SIGNAL void start(const QString &device);
 
     QThread m_workerThread;
     Worker *m_worker;
