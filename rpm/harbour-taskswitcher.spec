@@ -61,6 +61,7 @@ desktop-file-install --delete-original \
 %attr(755,root,root) %{_bindir}/harbour-taskswitcher-user
 %{_datadir}/harbour-taskswitcher-user/
 %{_datadir}/applications
+/usr/lib/systemd/user/harbour-taskswitcher.service
 
 #%post
 #DBUS_SESSION_BUS_ADDRESS="unix:path=/run/user/100000/dbus/user_bus_socket" \

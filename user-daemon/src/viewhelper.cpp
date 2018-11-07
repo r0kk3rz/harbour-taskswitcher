@@ -4,6 +4,7 @@
 
 #include <QGuiApplication>
 #include <QDir>
+#include <QDebug>
 #include <qpa/qplatformnativeinterface.h>
 #include <QFileInfo>
 #include "../daemon/src/defaultSettings.h"
@@ -62,7 +63,7 @@ void ViewHelper::hideWindow()
 void ViewHelper::showWindow()
 {
     qDebug() << "taskswitcher:showWindow";
- 
+
     //parse all desktop files
     QVariantMap map;
 
@@ -82,34 +83,84 @@ void ViewHelper::showWindow()
     {
         desktops << list.at(i).absoluteFilePath();
     }
+    QVariantList desktopFiles;
 
     //1. get a list of all desktop files that have runnable apps
+    apps.clear();
     for (int i = 0 ; i < desktops.count() ; i++)
     {
         MDesktopEntry app(desktops.at(i));
 
-            if (app.isValid() && !app.hidden() && !app.noDisplay())
-            {
-                    map.clear();
-                    map.insert("name", app.name());
-                    if (app.icon().startsWith("icon-launcher-") || app.icon().startsWith("icon-l-") || app.icon().startsWith("icons-Applications"))
-                        map.insert("iconId", QString("image://theme/%1").arg(app.icon()));
-                    else if (app.icon().startsWith("/"))
-                        map.insert("iconId", QString("%1").arg(app.icon()));
-                    else
-                        map.insert("iconId", QString("/usr/share/icons/hicolor/86x86/apps/%1.png").arg(app.icon()));
+        if (app.isValid() && !app.hidden() && !app.noDisplay())
+        {
+            map.clear();
+            map.insert("name", app.name());
+            if (app.icon().startsWith("icon-launcher-") || app.icon().startsWith("icon-l-") || app.icon().startsWith("icons-Applications"))
+                map.insert("iconId", QString("image://theme/%1").arg(app.icon()));
+            else if (app.icon().startsWith("/"))
+                map.insert("iconId", QString("%1").arg(app.icon()));
+            else
+                map.insert("iconId", QString("/usr/share/icons/hicolor/86x86/apps/%1.png").arg(app.icon()));
 
-            	map.insert("exec", app.exec());
+            map.insert("exec", app.exec());
+            map.insert("desktop", desktops.at(i));
             
-                    apps.prepend(map);
-            }
-
+            desktopFiles.prepend(map);
+        }
     }
+    qDebug() << "Desktop files:" << desktopFiles;
     
     //2. get a list of running processes
+    QProcess ps;
+    ps.start("ps", QStringList() << "ax" << "-o" << "cmd=");
+    ps.waitForFinished();
+    QStringList pr = QString(ps.readAllStandardOutput()).split("\n");
+
+    QStringList cmds;
+    /* TODO: Add support for android apps */
+    for (int i=0 ; i<pr.count() ; i++)
+    {
+        cmds << pr.at(i).trimmed();
+    }
+    cmds.removeDuplicates();
     
-    
+    qDebug() << "Processes:" << cmds;
+
+    //3. loop over processes and compare against desktop files
+    foreach(QString cmd, cmds) {
+        qDebug() << "Looking for " << cmd;
+        for (int i = 0; i < desktopFiles.count(); i++) {
+            if (cmd == desktopFiles.at(i).toMap()["exec"]) { //found an exe from a .desktop
+                qDebug() << "Found a running app:" << cmd << desktopFiles.at(i).toMap()["desktop"].toString();
+                if (!appsDesktopFiles.contains(desktopFiles.at(i).toMap()["desktop"].toString())) {
+                    apps.prepend(desktopFiles.at(i));
+                    appsDesktopFiles << desktopFiles.at(i).toMap()["desktop"].toString();
+                }
+            }
+        }
+    }
+
+    //4. Remove apps not in cmds
+
+    //4. tell QML
+    /* Force updating the model in QML */
+    m_numberOfApps = 0;
+    emit numberOfAppsChanged();
+
+    m_numberOfApps = apps.count();
+    emit numberOfAppsChanged();
+
+    if (m_numberOfApps > 1)
+    {
+        m_currentApp = 1;
+        emit currentAppChanged();
+
+        view->showFullScreen();
+        m_visible = true;
+        emit visibleChanged();
+    }
 }
+
 
 #if 0
 void ViewHelper::showWindow()
@@ -128,7 +179,7 @@ void ViewHelper::showWindow()
         if ((pr.at(i).contains("invoker") && pr.at(i).contains("silica")) ||
                 pr.at(i).contains("jolla-") ||
                 pr.at(i).contains("sailfish-") ||
-                 pr.at(i).contains("depecher") ||
+                pr.at(i).contains("depecher") ||
                 (pr.at(i).contains("invoker") && pr.at(i).contains("fingerterm")) ||
                 (pr.at(i).contains("invoker") && pr.at(i).contains("generic")))
         {
