@@ -10,7 +10,11 @@ DEFINES += "APPVERSION=\\\"$${SPECVERSION}\\\""
 
 target.path = /usr/bin/
 
-INSTALLS += target
+systemd_services.path = /usr/lib/systemd/user/
+systemd_services.files = harbour-taskswitcher.service
+
+INSTALLS += target \
+                          systemd_services
 
 message($${DEFINES})
 
