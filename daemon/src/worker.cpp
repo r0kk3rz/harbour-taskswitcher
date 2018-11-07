@@ -1,6 +1,5 @@
 #include "worker.h"
 
-
 #include <sys/types.h>
 #include <linux/input.h>
 #include <sys/stat.h>

@@ -61,6 +61,59 @@ void ViewHelper::hideWindow()
 
 void ViewHelper::showWindow()
 {
+    qDebug() << "taskswitcher:showWindow";
+ 
+    //parse all desktop files
+    QVariantMap map;
+
+    QFileInfoList list;
+    QDir dir;
+    QStringList desktops;
+    QStringList runningApps;
+
+    dir.setPath("/usr/share/applications/");
+    dir.setFilter(QDir::Files | QDir::NoDotAndDotDot | QDir::NoSymLinks);
+    dir.setNameFilters(QStringList() << "*.desktop");
+    dir.setSorting(QDir::Name);
+
+    list = dir.entryInfoList();
+
+    for (int i=0 ; i<list.size() ; i++)
+    {
+        desktops << list.at(i).absoluteFilePath();
+    }
+
+    //1. get a list of all desktop files that have runnable apps
+    for (int i = 0 ; i < desktops.count() ; i++)
+    {
+        MDesktopEntry app(desktops.at(i));
+
+            if (app.isValid() && !app.hidden() && !app.noDisplay())
+            {
+                    map.clear();
+                    map.insert("name", app.name());
+                    if (app.icon().startsWith("icon-launcher-") || app.icon().startsWith("icon-l-") || app.icon().startsWith("icons-Applications"))
+                        map.insert("iconId", QString("image://theme/%1").arg(app.icon()));
+                    else if (app.icon().startsWith("/"))
+                        map.insert("iconId", QString("%1").arg(app.icon()));
+                    else
+                        map.insert("iconId", QString("/usr/share/icons/hicolor/86x86/apps/%1.png").arg(app.icon()));
+
+            	map.insert("exec", app.exec());
+            
+                    apps.prepend(map);
+            }
+
+    }
+    
+    //2. get a list of running processes
+    
+    
+}
+
+#if 0
+void ViewHelper::showWindow()
+{
     printf("tohkbd2-user: showing taskswitcher\n");
 
     QProcess ps;
@@ -75,7 +128,9 @@ void ViewHelper::showWindow()
         if ((pr.at(i).contains("invoker") && pr.at(i).contains("silica")) ||
                 pr.at(i).contains("jolla-") ||
                 pr.at(i).contains("sailfish-") ||
-                (pr.at(i).contains("invoker") && pr.at(i).contains("fingerterm")))
+                 pr.at(i).contains("depecher") ||
+                (pr.at(i).contains("invoker") && pr.at(i).contains("fingerterm")) ||
+                (pr.at(i).contains("invoker") && pr.at(i).contains("generic")))
         {
             cmd << pr.at(i);
         }
@@ -188,6 +243,8 @@ void ViewHelper::showWindow()
         emit visibleChanged();
     }
 }
+
+#endif
 
 void ViewHelper::nextApp()
 {
