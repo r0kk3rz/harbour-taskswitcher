@@ -73,7 +73,7 @@ void Worker::readKeyboard(const QString &device)
         if (event.type == EV_KEY) {
             if (event.value == KEY_PRESS) {
                 char *name = getKeyText(event.code, shift_pressed);
-                qDebug() << "Pressed" << name;
+                //qDebug() << "Pressed" << name;
                 if (strcmp(name, "<LAlt>") == 0) {
                     alt_pressed = true;
                 } else if (strcmp(name, "<Tab>") == 0) {
@@ -84,7 +84,7 @@ void Worker::readKeyboard(const QString &device)
                 }
             } else if (event.value == KEY_RELEASE) {
                 char *name = getKeyText(event.code, shift_pressed);
-                qDebug() << "Released" << name;
+                //qDebug() << "Released" << name;
                 if (strcmp(name, "<LAlt>") == 0) {
                     alt_pressed = false;
                     emit altReleased();

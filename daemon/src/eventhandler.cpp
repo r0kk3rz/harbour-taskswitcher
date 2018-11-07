@@ -96,14 +96,14 @@ QString EventHandler::getDeviceFile(const QString &name)
     QFile file("/proc/bus/input/devices");
     if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
         qDebug() << "Unable to open devices list";
-        return QString();
+        return QString();    
     }
-
-    QTextStream in(&file);
+    
+    QByteArray contents = file.readAll();
+    QTextStream in(&contents);
     while (!in.atEnd()) {
         QString line = in.readLine();
 
-        qDebug()  << line;
         if (!name_found) {
             if (line.contains(name)) {
                 name_found = true;
@@ -121,7 +121,6 @@ QString EventHandler::getDeviceFile(const QString &name)
     if (eventstring.startsWith("event")) {
         devicepath = "/dev/input/" + eventstring;
     }
-    qDebug() <<  "devicepath:" << devicepath;
 
     return devicepath;
 }
