@@ -55,6 +55,7 @@ void ViewHelper::setDefaultRegion()
 
 void ViewHelper::hideWindow()
 {
+    qDebug() << "hide window";
     m_visible = false;
     emit visibleChanged();
     launchApplication(m_currentApp);
@@ -86,7 +87,6 @@ void ViewHelper::showWindow()
     QVariantList desktopFiles;
 
     //1. get a list of all desktop files that have runnable apps
-    apps.clear();
     for (int i = 0 ; i < desktops.count() ; i++)
     {
         MDesktopEntry app(desktops.at(i));
@@ -106,10 +106,11 @@ void ViewHelper::showWindow()
             map.insert("desktop", desktops.at(i));
             
             desktopFiles.prepend(map);
+            
+    //qDebug() << "Desktop files:" << map["exec"].toString();
+    
         }
     }
-    qDebug() << "Desktop files:" << desktopFiles;
-    
     //2. get a list of running processes
     QProcess ps;
     ps.start("ps", QStringList() << "ax" << "-o" << "cmd=");
@@ -120,29 +121,38 @@ void ViewHelper::showWindow()
     /* TODO: Add support for android apps */
     for (int i=0 ; i<pr.count() ; i++)
     {
-        cmds << pr.at(i).trimmed();
+        QString cmd;
+        if (!(pr.at(i).trimmed().startsWith("[") || pr.at(i).trimmed().contains("invoker"))  && (pr.at(i).trimmed().startsWith("/") || pr.at(i).trimmed().contains("."))) { //filter out kernel and invoker proceses and include android processes
+            if (pr.at(i).trimmed().length() > 1) {
+                cmd = pr.at(i).trimmed().split(" ")[0];
+                if (cmd.contains("/")) {
+                    cmd = cmd.mid(cmd.lastIndexOf("/") + 1);
+                }
+                cmds << cmd;
+                qDebug() << "Processes:" << cmd;
+            }
+        }
     }
     cmds.removeDuplicates();
     
-    qDebug() << "Processes:" << cmds;
-
     //3. loop over processes and compare against desktop files
     foreach(QString cmd, cmds) {
-        qDebug() << "Looking for " << cmd;
+        //qDebug() << "Looking for " << cmd;
         for (int i = 0; i < desktopFiles.count(); i++) {
-            if (cmd == desktopFiles.at(i).toMap()["exec"]) { //found an exe from a .desktop
-                qDebug() << "Found a running app:" << cmd << desktopFiles.at(i).toMap()["desktop"].toString();
+            //qDebug() << "in:" << desktopFiles.at(i).toMap()["exec"].toString();
+            if (desktopFiles.at(i).toMap()["exec"].toString().contains(cmd + " ") || desktopFiles.at(i).toMap()["exec"].toString().endsWith(cmd)  || desktopFiles.at(i).toMap()["exec"].toString().contains(cmd + "/")) { //found an exe from a .desktop
+                qDebug() << "Found a running app:" << cmd << desktopFiles.at(i).toMap()["exec"].toString() << desktopFiles.at(i).toMap()["desktop"].toString();
                 if (!appsDesktopFiles.contains(desktopFiles.at(i).toMap()["desktop"].toString())) {
                     apps.prepend(desktopFiles.at(i));
-                    appsDesktopFiles << desktopFiles.at(i).toMap()["desktop"].toString();
+                    appsDesktopFiles.prepend(desktopFiles.at(i).toMap()["desktop"].toString());
                 }
             }
         }
     }
 
     //4. Remove apps not in cmds
-
-    //4. tell QML
+    
+    //5. tell QML
     /* Force updating the model in QML */
     m_numberOfApps = 0;
     emit numberOfAppsChanged();
@@ -159,6 +169,8 @@ void ViewHelper::showWindow()
         m_visible = true;
         emit visibleChanged();
     }
+    
+    qDebug() << "no apps" << m_numberOfApps << m_currentApp;
 }
 
 
