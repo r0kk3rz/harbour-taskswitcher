@@ -9,7 +9,7 @@
 #include <nemonotifications-qt5/notification.h>
 #include <mlite5/MDesktopEntry>
 
-#define SERVICE_NAME "com.piggz.taskswitcher"
+#define SERVICE_NAME "uk.co.piggz.taskswitcher"
 #define KEYMAP_FOLDER "/harbour-tohkbd2"
 
 class QDBusInterface;

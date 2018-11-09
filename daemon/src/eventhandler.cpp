@@ -6,7 +6,7 @@
 #include <QDebug>
 #include <QFile>
 
-#define SERVICE_NAME "com.piggz.taskswitcher"
+#define SERVICE_NAME "uk.co.piggz.taskswitcher"
 
 EventHandler::EventHandler() {
     m_worker = new Worker;
