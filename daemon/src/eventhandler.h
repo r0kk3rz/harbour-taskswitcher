@@ -4,6 +4,7 @@
 #include <QObject>
 #include <QThread>
 #include <QTimer>
+#include <MGConfItem>
 
 #include "worker.h"
 
@@ -28,6 +29,7 @@ private:
     QThread m_workerThread;
     Worker *m_worker;
     QTimer *m_timer;
+    MGConfItem *m_deviceName;
 
     bool m_taskSwitcherVisible  = false;
     QString getDeviceFile(const QString &name);

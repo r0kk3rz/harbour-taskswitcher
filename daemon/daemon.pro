@@ -4,7 +4,7 @@ QT += dbus network
 QT -= gui
 
 CONFIG += link_pkgconfig
-#PKGCONFIG += Qt5SystemInfo
+PKGCONFIG += mlite5
 
 DEFINES += "APPVERSION=\\\"$${SPECVERSION}\\\""
 

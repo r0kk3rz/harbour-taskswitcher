@@ -18,6 +18,8 @@ EventHandler::EventHandler() {
     connect(m_worker, &Worker::finished, this, &EventHandler::workerFinished);
     m_workerThread.start();
 
+    m_deviceName =  new MGConfItem("/uk/co/piggz/taskswitcher/deviceName", this);
+ 
     //Start a timer to check for BT keyboard
     m_timer = new QTimer(this);
     connect(m_timer, &QTimer::timeout, this, &EventHandler::checkForDevice);
@@ -27,6 +29,7 @@ EventHandler::EventHandler() {
 EventHandler::~EventHandler() {
     m_workerThread.quit();
     m_workerThread.wait();
+    delete m_deviceName;
 }
 
 void EventHandler::startWorker(const QString &device)
@@ -76,8 +79,13 @@ void EventHandler::workerFinished()
 
 void EventHandler::checkForDevice()
 {
-    QString deviceName = "KBMAG7BK";
+    QString deviceName = m_deviceName->value().toString(); //"KBMAG7BK";
 
+    if (deviceName.isEmpty()) {
+        qDebug() << "Device name not set";
+        return;
+    }
+    
     QString deviceFile = getDeviceFile(deviceName);
 
     qDebug() << "Looking for " << deviceName << "found:" << deviceFile;

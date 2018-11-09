@@ -106,11 +106,9 @@ void ViewHelper::showWindow()
             map.insert("desktop", desktops.at(i));
             
             desktopFiles.prepend(map);
-            
-    //qDebug() << "Desktop files:" << map["exec"].toString();
-    
         }
     }
+    
     //2. get a list of running processes
     QProcess ps;
     ps.start("ps", QStringList() << "ax" << "-o" << "cmd=");
@@ -118,7 +116,6 @@ void ViewHelper::showWindow()
     QStringList pr = QString(ps.readAllStandardOutput()).split("\n");
 
     QStringList cmds;
-    /* TODO: Add support for android apps */
     for (int i=0 ; i<pr.count() ; i++)
     {
         QString cmd;
@@ -129,19 +126,22 @@ void ViewHelper::showWindow()
                     cmd = cmd.mid(cmd.lastIndexOf("/") + 1);
                 }
                 cmds << cmd;
-                qDebug() << "Processes:" << cmd;
+                //qDebug() << "Processes:" << cmd;
             }
         }
     }
     cmds.removeDuplicates();
     
+    QStringList runningDesktopFiles;
+    
     //3. loop over processes and compare against desktop files
     foreach(QString cmd, cmds) {
         //qDebug() << "Looking for " << cmd;
         for (int i = 0; i < desktopFiles.count(); i++) {
-            //qDebug() << "in:" << desktopFiles.at(i).toMap()["exec"].toString();
-            if (desktopFiles.at(i).toMap()["exec"].toString().contains(cmd + " ") || desktopFiles.at(i).toMap()["exec"].toString().endsWith(cmd)  || desktopFiles.at(i).toMap()["exec"].toString().contains(cmd + "/")) { //found an exe from a .desktop
+              //Check if the command is in the desktop with a param, or at the end or is an android style exec            
+             if (desktopFiles.at(i).toMap()["exec"].toString().contains(cmd + " ") || desktopFiles.at(i).toMap()["exec"].toString().endsWith(cmd)  || desktopFiles.at(i).toMap()["exec"].toString().contains(cmd + "/")) {
                 qDebug() << "Found a running app:" << cmd << desktopFiles.at(i).toMap()["exec"].toString() << desktopFiles.at(i).toMap()["desktop"].toString();
+                runningDesktopFiles << desktopFiles.at(i).toMap()["desktop"].toString();
                 if (!appsDesktopFiles.contains(desktopFiles.at(i).toMap()["desktop"].toString())) {
                     apps.prepend(desktopFiles.at(i));
                     appsDesktopFiles.prepend(desktopFiles.at(i).toMap()["desktop"].toString());
@@ -151,7 +151,16 @@ void ViewHelper::showWindow()
     }
 
     //4. Remove apps not in cmds
-    
+    for (int i = 0 ; i < appsDesktopFiles.count() ; i++)
+    {
+        if (!runningDesktopFiles.contains(appsDesktopFiles.at(i)))
+        {
+            qDebug() << "removing closed app " << appsDesktopFiles.at(i);
+            appsDesktopFiles.removeAt(i);
+            apps.removeAt(i);
+        }
+    }
+
     //5. tell QML
     /* Force updating the model in QML */
     m_numberOfApps = 0;

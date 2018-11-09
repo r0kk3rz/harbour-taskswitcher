@@ -40,8 +40,8 @@ public slots:
     void launchApplication(const QString &desktopFilename);
     void showKeyboardConnectionNotification(const bool &connected);
     QString getVersion();
-    void showTaskSwitcher() { qDebug() << "_showTaskSwitcher"; emit  _showTaskSwitcher(); }
-    void nextAppTaskSwitcher() { qDebug() << "_nextAppTaskSwitcher"; emit _nextAppTaskSwitcher(); }
+    void showTaskSwitcher() { emit  _showTaskSwitcher(); }
+    void nextAppTaskSwitcher() { emit _nextAppTaskSwitcher(); }
     void hideTaskSwitcher() { emit  _hideTaskSwitcher(); }
     void actionWithRemorse(const QString &action);
     void takeScreenShot() { emit _takeScreenShot(); }
