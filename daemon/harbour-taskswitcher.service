@@ -1,13 +1,12 @@
 [Unit]
 Description=Taskswitcher daemon
-After=dbus.service
-After=tohd.service
+After=pre-user-session.target
 
 [Service]
 ExecStart=/usr/bin/harbour-taskswitcher
 Restart=always
 RestartSec=5
-Environment=DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/100000/dbus/user_bus_socket XDG_RUNTIME_DIR=/run/user/100000
+Environment=HOME=/home/nemo XDG_CONFIG_HOME=/home/nemo/.config DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/100000/dbus/user_bus_socket XDG_RUNTIME_DIR=/run/user/100000
 
 [Install]
-WantedBy=multi-user.target
+WantedBy=user-session.target
