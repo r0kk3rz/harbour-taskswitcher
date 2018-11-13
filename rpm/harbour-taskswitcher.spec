@@ -62,43 +62,29 @@ desktop-file-install --delete-original \
 %{_datadir}/harbour-taskswitcher-user/
 %{_datadir}/applications
 /usr/lib/systemd/user/harbour-taskswitcher.service
+/usr/lib/systemd/user/harbour-taskswitcher-user.service
 
-#%post
-#DBUS_SESSION_BUS_ADDRESS="unix:path=/run/user/100000/dbus/user_bus_socket" \
-#    dbus-send --type=method_call --dest=org.freedesktop.DBus / org.freedesktop.DBus.ReloadConfig
-##restart maliit
-#systemctl-user restart maliit-server
-##reload udev rules
-#udevadm control --reload
-# if tohkbd2 is connected, start daemon now
-# vendor id 6537 = 0x1989 = dirkvl
-# product id 3 = tohkbd2
-#if [ -e /sys/devices/platform/toh-core.0/vendor ]; then
-#    if grep -q 6537 /sys/devices/platform/toh-core.0/vendor ; then
-#        if grep -q 3 /sys/devices/platform/toh-core.0/product ; then
-#            systemctl start harbour-tohkbd2.service
-#        fi
-#    fi
-#fi
+%post
+# Enable and start services
+systemctl --user daemon-reload
+systemctl --user enable harbour-taskswitcher.service
+systemctl --user enable harbour-taskswitcher-user.service
+systemctl --user start harbour-taskswitcher.service
+systemctl --user start harbour-taskswitcher-user.service
 
-#%pre
-# In case of update, stop and disable first
-#if [ "$1" = "2" ]; then
-#    systemctl stop harbour-tohkbd2.service
-#    systemctl disable harbour-tohkbd2.service
-#    udevadm control --reload
-#fi
+%pre
+# In case of update, stop first
+if [ "$1" = "2" ]; then
+    systemctl --user stop harbour-taskswitcher.service
+    systemctl --user stop harbour-taskswitcher-user.service
+fi
+exit 0
 
-#%preun
-## in case of complete removal, stop and disable
-#if [ "$1" = "0" ]; then
-#    systemctl stop harbour-tohkbd2.service
-#    systemctl disable harbour-tohkbd2.service
-#    udevadm control --reload
-#fi
-
-#%postun
-#DBUS_SESSION_BUS_ADDRESS="unix:path=/run/user/100000/dbus/user_bus_socket" \
-#    dbus-send --type=method_call --dest=org.freedesktop.DBus / org.freedesktop.DBus.ReloadConfig
-#restart maliit
-#systemctl-user restart maliit-server
+%preun
+# in case of complete removal, stop and disable
+if [ "$1" = "0" ]; then
+    systemctl --user stop harbour-taskswitcher.service
+    systemctl --user stop harbour-taskswitcher-user.service
+    systemctl --user disable harbour-taskswitcher.service
+    systemctl --user disable harbour-taskswitcher-user.service
+fi

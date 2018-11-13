@@ -138,8 +138,8 @@ void ViewHelper::showWindow()
     foreach(QString cmd, cmds) {
         //qDebug() << "Looking for " << cmd;
         for (int i = 0; i < desktopFiles.count(); i++) {
-              //Check if the command is in the desktop with a param, or at the end or is an android style exec            
-             if (desktopFiles.at(i).toMap()["exec"].toString().contains(cmd + " ") || desktopFiles.at(i).toMap()["exec"].toString().endsWith(cmd)  || desktopFiles.at(i).toMap()["exec"].toString().contains(cmd + "/")) {
+            //Check if the command is in the desktop with a param, or at the end or is an android style exec
+            if (desktopFiles.at(i).toMap()["exec"].toString().contains(cmd + " ") || desktopFiles.at(i).toMap()["exec"].toString().endsWith(cmd)  || desktopFiles.at(i).toMap()["exec"].toString().contains(cmd + "/")) {
                 qDebug() << "Found a running app:" << cmd << desktopFiles.at(i).toMap()["exec"].toString() << desktopFiles.at(i).toMap()["desktop"].toString();
                 runningDesktopFiles << desktopFiles.at(i).toMap()["desktop"].toString();
                 if (!appsDesktopFiles.contains(desktopFiles.at(i).toMap()["desktop"].toString())) {
@@ -181,142 +181,6 @@ void ViewHelper::showWindow()
     
     qDebug() << "no apps" << m_numberOfApps << m_currentApp;
 }
-
-
-#if 0
-void ViewHelper::showWindow()
-{
-    printf("tohkbd2-user: showing taskswitcher\n");
-
-    QProcess ps;
-    ps.start("ps", QStringList() << "ax" << "-o" << "cmd=");
-    ps.waitForFinished();
-    QStringList pr = QString(ps.readAllStandardOutput()).split("\n");
-
-    QStringList cmd;
-    /* TODO: Add support for android apps */
-    for (int i=0 ; i<pr.count() ; i++)
-    {
-        if ((pr.at(i).contains("invoker") && pr.at(i).contains("silica")) ||
-                pr.at(i).contains("jolla-") ||
-                pr.at(i).contains("sailfish-") ||
-                pr.at(i).contains("depecher") ||
-                (pr.at(i).contains("invoker") && pr.at(i).contains("fingerterm")) ||
-                (pr.at(i).contains("invoker") && pr.at(i).contains("generic")))
-        {
-            cmd << pr.at(i);
-        }
-    }
-
-    QStringList exec;
-    for (int i=0 ; i<cmd.count() ; i++)
-    {
-        QStringList tmp = cmd.at(i).split(" ");
-        for (int a=0 ; a<tmp.count() ; a++)
-        {
-            if (!tmp.at(a).startsWith("-") && !tmp.at(a).contains("invoker") && !tmp.at(a).isEmpty())
-            {
-                QFileInfo fi(QDir("/usr/bin"), tmp.at(a));
-                if (fi.exists() && fi.isExecutable())
-                {
-                    exec << tmp.at(a);
-                }
-            }
-        }
-    }
-
-    exec.removeDuplicates();
-
-    QVariantMap map;
-
-    QFileInfoList list;
-    QDir dir;
-    QStringList desktops;
-    QStringList runningApps;
-
-    dir.setPath("/usr/share/applications/");
-    dir.setFilter(QDir::Files | QDir::NoDotAndDotDot | QDir::NoSymLinks);
-    dir.setNameFilters(QStringList() << "*.desktop");
-    dir.setSorting(QDir::Name);
-
-    list = dir.entryInfoList();
-
-    for (int i=0 ; i<list.size() ; i++)
-    {
-        desktops << list.at(i).absoluteFilePath();
-    }
-
-    for (int i = 0 ; i < desktops.count() ; i++)
-    {
-        MDesktopEntry app(desktops.at(i));
-
-        for (int m = 0 ; m < exec.count() ; m++)
-        {
-            if (app.exec().contains(exec.at(m)) && app.isValid() && !app.hidden() && !app.noDisplay() && desktops.at(i).contains(exec.at(m).split("/").last()))
-            {
-                /* This is newly started app, not in our list. it goes to first */
-                if (!appsDesktopFiles.contains(desktops.at(i)))
-                {
-                    printf("tohkbd2-user: new app found %s\n", qPrintable(desktops.at(i)));
-
-                    map.clear();
-                    map.insert("name", app.name());
-                    if (app.icon().startsWith("icon-launcher-") || app.icon().startsWith("icon-l-") || app.icon().startsWith("icons-Applications"))
-                        map.insert("iconId", QString("image://theme/%1").arg(app.icon()));
-                    else if (app.icon().startsWith("/"))
-                        map.insert("iconId", QString("%1").arg(app.icon()));
-                    else
-                        map.insert("iconId", QString("/usr/share/icons/hicolor/86x86/apps/%1.png").arg(app.icon()));
-
-                    apps.prepend(map);
-                    appsDesktopFiles.prepend(desktops.at(i));
-                    runningApps.prepend(desktops.at(i));
-                }
-                else /* It is already there, nothing to do */
-                {
-                    printf("tohkbd2-user: existing app %s\n", qPrintable(desktops.at(i)));
-                    runningApps.append(desktops.at(i));
-                }
-
-                exec.removeAt(m);
-
-                if (runningApps.count() > 15)
-                    break;
-            }
-        }
-        if (runningApps.count() > 15)
-            break;
-    }
-
-    for (int i = 0 ; i < appsDesktopFiles.count() ; i++)
-    {
-        if (!runningApps.contains(appsDesktopFiles.at(i)))
-        {
-            printf("tohkbd2-user: removing app %s\n", qPrintable(appsDesktopFiles.at(i)));
-            appsDesktopFiles.removeAt(i);
-            apps.removeAt(i);
-        }
-    }
-
-    /* Force updating the model in QML */
-    m_numberOfApps = 0;
-    emit numberOfAppsChanged();
-
-    m_numberOfApps = appsDesktopFiles.count();
-    emit numberOfAppsChanged();
-
-    if (m_numberOfApps > 1)
-    {
-        m_currentApp = 1;
-        emit currentAppChanged();
-
-        view->showFullScreen();
-        m_visible = true;
-        emit visibleChanged();
-    }
-}
-
-#endif
 
 void ViewHelper::nextApp()
 {
