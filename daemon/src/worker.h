@@ -78,6 +78,8 @@ public slots:
 signals:
     void altTabPressed();
     void altReleased();
+    void ctrlAltBackspacePressed();
+    void ctrlAltDeletePressed();
     void finished();
 };
 
