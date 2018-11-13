@@ -21,6 +21,9 @@ private:
 
     Q_SLOT void altTabPressed();
     Q_SLOT void altReleased();
+    Q_SLOT void ctrlAltBackspacePressed();
+    Q_SLOT void ctrlAltDeletePressed();        
+    
     Q_SLOT void workerFinished(); //probably the device disappeared
     Q_SLOT void checkForDevice();
 

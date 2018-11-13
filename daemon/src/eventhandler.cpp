@@ -1,4 +1,5 @@
 #include "eventhandler.h"
+#include "defaultSettings.h"
 
 #include <QDBusConnection>
 #include <QDBusError>
@@ -15,6 +16,8 @@ EventHandler::EventHandler() {
     connect(this, &EventHandler::start, m_worker, &Worker::readKeyboard);
     connect(m_worker, &Worker::altTabPressed, this, &EventHandler::altTabPressed);
     connect(m_worker, &Worker::altReleased, this, &EventHandler::altReleased);
+    connect(m_worker, &Worker::ctrlAltBackspacePressed, this, &EventHandler::ctrlAltBackspacePressed);
+    connect(m_worker, &Worker::ctrlAltDeletePressed, this, &EventHandler::ctrlAltDeletePressed);
     connect(m_worker, &Worker::finished, this, &EventHandler::workerFinished);
     m_workerThread.start();
 
@@ -69,6 +72,22 @@ void EventHandler::altReleased()
         iface.call("hideTaskSwitcher");
     }
     
+}
+
+void EventHandler::ctrlAltBackspacePressed()
+{
+    qDebug() << "Eventhandler::ctrlAltBackspacePressed";
+
+    QDBusInterface iface(SERVICE_NAME, "/", "", QDBusConnection::sessionBus());
+    iface.call("actionWithRemorse", ACTION_REBOOT_REMORSE);   
+}
+
+void EventHandler::ctrlAltDeletePressed()
+{
+    qDebug() << "Eventhandler::ctrlAltDeletePressed";
+
+    QDBusInterface iface(SERVICE_NAME, "/", "", QDBusConnection::sessionBus());
+    iface.call("actionWithRemorse", ACTION_RESTART_LIPSTICK_REMORSE);   
 }
 
 void EventHandler::workerFinished()

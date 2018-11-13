@@ -67,26 +67,41 @@ void Worker::readKeyboard(const QString &device)
     uint8_t shift_pressed = 0;
     input_event event;
     bool alt_pressed = false;
-
+    bool ctrl_pressed = false;
+    
     while (read(kbd_fd, &event, sizeof(input_event)) > 0) {
         if (event.type == EV_KEY) {
             if (event.value == KEY_PRESS) {
                 char *name = getKeyText(event.code, shift_pressed);
                 //qDebug() << "Pressed" << name;
-                if (strcmp(name, "<LAlt>") == 0) {
+                if (strcmp(name, "<LAlt>") == 0 || strcmp(name, "<RAlt>") == 0) {
                     alt_pressed = true;
+                } else if (strcmp(name, "<LCtrl>") == 0 || strcmp(name, "<RCtrl>") == 0) {
+                    ctrl_pressed = true;
                 } else if (strcmp(name, "<Tab>") == 0) {
                     if (alt_pressed) {
                         qDebug() << "alt-tab pressed";
                         emit altTabPressed();
                     }
+                } else if (strcmp(name, "<Backspace>") == 0) {
+                    if (alt_pressed && ctrl_pressed) {
+                        qDebug() << "ctrl-alt-backspace pressed";
+                        emit ctrlAltBackspacePressed();
+                    }
+                } else if (strcmp(name, "<Delete>") == 0) {
+                    if (alt_pressed && ctrl_pressed) {
+                        qDebug() << "ctrl-alt-delete pressed";
+                        emit ctrlAltDeletePressed();
+                    }
                 }
             } else if (event.value == KEY_RELEASE) {
                 char *name = getKeyText(event.code, shift_pressed);
                 //qDebug() << "Released" << name;
-                if (strcmp(name, "<LAlt>") == 0) {
+                if (strcmp(name, "<LAlt>") == 0 || strcmp(name, "<RAlt>") == 0) {
                     alt_pressed = false;
                     emit altReleased();
+                } if (strcmp(name, "<LCtrl>") == 0 || strcmp(name, "<RCtrl>") == 0) {
+                    ctrl_pressed = false	;
                 }
             }
         }
