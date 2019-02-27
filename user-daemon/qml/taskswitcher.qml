@@ -109,7 +109,7 @@ Item
         visible: viewHelper.visible
         anchors.centerIn: root
         anchors.horizontalCenterOffset: Theme.paddingLarge
-        color: Theme.rgba(Theme.highlightBackgroundColor, Theme.highlightBackgroundOpacity)
+        color: Theme.overlayBackgroundColor
         radius: Theme.paddingSmall
         width: Theme.itemSizeLarge * taskSwitchGrid.rows + 2 * Theme.paddingLarge
         height: Theme.itemSizeLarge * taskSwitchGrid.columns + Theme.paddingLarge
