@@ -10,12 +10,11 @@ DEFINES += "APPVERSION=\\\"$${SPECVERSION}\\\""
 
 message($${DEFINES})
 
-
 systemd_services.path = /usr/lib/systemd/user/
 systemd_services.files = harbour-taskswitcher-user.service
 
 INSTALLS += target \
-                          systemd_services
+            systemd_services
 
 SOURCES += \
     src/tohkbd2user.cpp \

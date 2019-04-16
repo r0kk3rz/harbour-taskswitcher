@@ -1,6 +1,6 @@
 #
-# harbour-ambience-tohkbd2 spec
-# (C) kimmoli 2014-2015
+# harbour-taskswitcher spec
+# (C) piggz 2018-2019
 #
 
 Name:       harbour-taskswitcher
@@ -10,12 +10,12 @@ Name:       harbour-taskswitcher
 %{!?qtc_make:%define qtc_make make}
 %{?qtc_builddir:%define _builddir %qtc_builddir}
 
-Summary:    Bluetooth keyboard taskswitcher
-Version:    0.0.devel
+Summary:    Keyboard taskswitcher
+Version:    0.3
 Release:    1
 Group:      Qt/Qt
 License:    LICENSE
-URL:        https://github.com/kimmoli/tohkbd2
+URL:        https://github.com/piggz/harbour-taskswitcher
 Source0:    %{name}-%{version}.tar.bz2
 
 BuildRequires:  pkgconfig(Qt5Core)

@@ -63,12 +63,11 @@ int main(int argc, char **argv)
     setlinebuf(stdout);
     setlinebuf(stderr);
 
-    printf("tohkbd2-user: starting daemon version %s\n", APPVERSION);
+    printf("taskswitcher-user: starting daemon version %s\n", APPVERSION);
 
-    printf("tohkbd2-user: Locale is %s\n", qPrintable(QLocale::system().name()));
+    printf("taskswitcher-user: Locale is %s\n", qPrintable(QLocale::system().name()));
 
     UserDaemon rw;
-    //new Tohkbd2userAdaptor(&rw);
 
     rw.registerDBus();
 

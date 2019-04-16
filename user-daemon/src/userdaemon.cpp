@@ -13,29 +13,6 @@ UserDaemon::UserDaemon(QObject *parent) :
 {
     m_dbusRegistered = false;
     m_launchPending = false;
-
-    installKeymaps(false);
-
-    physicalLayout = new MGConfItem("/desktop/lipstick-jolla-home/layout");
-    connect(physicalLayout, SIGNAL(valueChanged()), this, SLOT(handlePhysicalLayout()));
-
-    unsupportedLayoutNotificationBlocker = new QTimer(this);
-    unsupportedLayoutNotificationBlocker->setSingleShot(true);
-    unsupportedLayoutNotificationBlocker->setInterval(15000);
-
-    /* Remove tohkbd from enabled layouts if vkb is hidden by maliit.
-     * The related PR is merged in maliit-framework and should be in 2.0 */
-    if (checkSailfishVersion("2.0.0.0"))
-    {
-        QString tohlayout("harbour-tohkbd2.qml");
-        MGConfItem el("/sailfish/text_input/enabled_layouts");
-        QStringList list = el.value().toStringList();
-        if (list.contains(tohlayout))
-        {
-            list.removeAll(tohlayout);
-            el.set(list);
-        }
-    }
 }
 
 UserDaemon::~UserDaemon()
@@ -46,7 +23,7 @@ UserDaemon::~UserDaemon()
         connection.unregisterObject(PATH);
         connection.unregisterService(SERVICE);
 
-        printf("tohkbd2-user: unregistered from dbus sessionBus\n");
+        printf("taskswitcher-user: unregistered from dbus sessionBus\n");
     }
 }
 
@@ -75,62 +52,22 @@ void UserDaemon::registerDBus()
 
 void UserDaemon::quit()
 {
-    printf("tohkbd2-user: quit requested from dbus\n");
+    printf("taskswitcher-user: quit requested from dbus\n");
     QCoreApplication::quit();
-}
-
-void UserDaemon::setActiveLayout(const QString &value)
-{
-    if (value.contains("qml"))
-    {
-        printf("tohkbd2-user: setting active layout to \"%s\"\n", qPrintable(value));
-
-        MGConfItem ci("/sailfish/text_input/active_layout");
-        ci.set(value);
-        
-        QString tohlayout("harbour-tohkbd2.qml");
-        MGConfItem el("/sailfish/text_input/enabled_layouts");
-        QStringList list = el.value().toStringList();
-        if (value.compare(tohlayout) == 0) {
-            if (!list.contains(tohlayout)) {
-                list.append(tohlayout);
-                el.set(list);
-            }
-        }
-        else {
-            if (list.contains(tohlayout)) {
-                list.removeAll(tohlayout);
-                el.set(list);
-            }
-        }
-    }
-    else
-    {
-        printf("tohkbd2-user: value \"%s\" does not look like layout, refused to write\n", qPrintable(value));
-    }
-}
-
-QString UserDaemon::getActiveLayout()
-{
-    MGConfItem ci("/sailfish/text_input/active_layout");
-
-    printf("tohkbd2-user: active layout is \"%s\"\n", qPrintable(ci.value().toString()));
-
-    return ci.value().toString();
 }
 
 void UserDaemon::setOrientationLock(const QString &value)
 {
     if (value == "dynamic" || value == "landscape" || value == "portrait")
     {
-        printf("tohkbd2-user: setting orientation lock to \"%s\"\n", qPrintable(value));
+        printf("taskswitcher-user: setting orientation lock to \"%s\"\n", qPrintable(value));
 
         MGConfItem ci("/lipstick/orientationLock");
         ci.set(value);
     }
     else
     {
-        printf("tohkbd2-user: error: orientation lock can be set only to dynamic, landscape or portrait.\n");
+        printf("taskswitcher-user: error: orientation lock can be set only to dynamic, landscape or portrait.\n");
     }
 }
 
@@ -145,7 +82,7 @@ QString UserDaemon::getOrientationLock()
     if (orientation.isEmpty())
         orientation = "dynamic";
 
-    printf("tohkbd2-user: orientation lock is \"%s\"\n", qPrintable(orientation));
+    printf("taskswitcher-user: orientation lock is \"%s\"\n", qPrintable(orientation));
 
     return orientation;
 }
@@ -162,13 +99,13 @@ void UserDaemon::showKeyboardConnectionNotification(const bool &connected)
     {
         //: Notification shown when keyboard is connected
         //% "Keyboard connected"
-        showNotification(qtTrId("keyb-connected"));
+        showNotification(tr("Keyboard Connected"));
     }
     else
     {
         //: Notification shown when keyboard is removed
         //% "Keyboard removed"
-        showNotification(qtTrId("keyb-removed"));
+        showNotification(tr("Keyboard Disconnected"));
     }
 }
 
@@ -201,100 +138,20 @@ void UserDaemon::showNotification(const QString &text)
     Notification notif;
 
     notif.setPreviewBody(text);
-    notif.setCategory("x-harbour.tohkbd2");
+    notif.setCategory("x-harbour.taskswitcher");
     notif.publish();
 }
 
 void UserDaemon::actionWithRemorse(const QString &action)
 {
-    printf("tohkbd2-user: requested %s.\n", qPrintable(action));
+    printf("taskswitcher-user: requested %s.\n", qPrintable(action));
 
     emit _requestActionWithRemorse(action);
 }
 
-void UserDaemon::handlePhysicalLayout()
-{
-    emit physicalLayoutChanged(getActivePhysicalLayout());
-}
-
-QString UserDaemon::getActivePhysicalLayout()
-{
-    return physicalLayout->value().toString();
-}
-
 QString UserDaemon::getPathTo(const QString &filename)
 {
-    if (filename == "keymaplocation")
-    {
-        return QStandardPaths::writableLocation(QStandardPaths::ConfigLocation) + KEYMAP_FOLDER;
-    }
-
     return SailfishApp::pathTo(filename).toLocalFile();
-}
-
-void UserDaemon::showUnsupportedLayoutNotification()
-{
-    /* Do not spam with notifications */
-    if (unsupportedLayoutNotificationBlocker->isActive())
-        return;
-
-    //: Notification shown when a physical layout is not supported or the config file has an error. Notification text will scroll.
-    //% "The selected physical layout is not supported by TOHKBD2. Config file can also be invalid or missing."
-    showNotification(qtTrId("layout-unsupported"));
-
-    unsupportedLayoutNotificationBlocker->start();
-}
-
-void UserDaemon::installKeymaps(const bool &overwrite)
-{
-    QDir keymapfolder(QStandardPaths::writableLocation(QStandardPaths::ConfigLocation) + KEYMAP_FOLDER);
-    keymapfolder.mkpath(".");
-
-    QDir keymapRes(":/layouts/");
-    QFileInfoList list = keymapRes.entryInfoList();
-
-    int i;
-    for (i=0 ; i < list.size() ; i++)
-    {
-        QString from = list.at(i).absoluteFilePath();
-        QString to = keymapfolder.path() + "/" + from.split("/").last();
-
-        QFileInfo toFile(to);
-
-        if(!toFile.exists() || overwrite)
-        {
-            QFile newToFile(to);
-            QResource res(from);
-
-            if (newToFile.open(QIODevice::WriteOnly) && res.isValid())
-            {
-                qint64 ws;
-                if (res.isCompressed())
-                    ws = newToFile.write( qUncompress(res.data(), res.size()));
-                else
-                    ws = newToFile.write( (char *)res.data());
-
-                newToFile.close();
-                printf("tohkbd2-user: Wrote %s (%lld bytes) to %s\n", qPrintable(from), ws, qPrintable(to));
-            }
-            else
-            {
-                printf("tohkbd2-user: Failed to write %s\n", qPrintable(to));
-            }
-        }
-    }
-}
-
-void UserDaemon::setKeymapLayout(const QString &value)
-{
-    MGConfItem keymapLayout("/desktop/lipstick-jolla-home/layout");
-    keymapLayout.set(value);
-}
-
-void UserDaemon::setKeymapVariant(const QString &value)
-{
-    MGConfItem keymapVariant("/desktop/lipstick-jolla-home/variant");
-    keymapVariant.set(value);
 }
 
 /*

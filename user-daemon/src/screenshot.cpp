@@ -24,9 +24,9 @@ void ScreenShot::takeScreenShot()
     m.setArguments(args);
 
     if (QDBusConnection::sessionBus().send(m))
-        printf("tohkbd2-user: Screenshot success to %s\n", qPrintable(ssFilename));
+        printf("taskswitcher-user: Screenshot success to %s\n", qPrintable(ssFilename));
     else
-        printf("tohkbd2-user: Screenshot failed\n");
+        printf("taskswitcher-user: Screenshot failed\n");
 
     notif.setAppName("TOHKBD");
     //: Notification shown after screenshot is taken
@@ -35,7 +35,7 @@ void ScreenShot::takeScreenShot()
     notif.setPreviewSummary(qtTrId("screenshot-saved"));
     notif.setBody(ssFilename.split("/").last());
     notif.setPreviewBody(ssFilename.split("/").last());
-    notif.setCategory("x-harbour.tohkbd2.screenshot");
+    notif.setCategory("x-harbour.taskswitcher.screenshot");
     notif.setReplacesId(0);
 
     args.clear();
@@ -51,7 +51,7 @@ void ScreenShot::takeScreenShot()
 
     notif.publish();
 
-    printf("tohkbd2-user: Notification sent\n");
+    printf("taskswitcher-user: Notification sent\n");
 }
 
 

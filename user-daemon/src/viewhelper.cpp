@@ -229,7 +229,7 @@ void ViewHelper::launchApplication(int n)
 {
     QString desktopFile = appsDesktopFiles.at(n);
 
-    printf("tohkbd2-user: Starting %s\n", qPrintable(desktopFile));
+    printf("taskswitcher-user: Starting %s\n", qPrintable(desktopFile));
 
     view->hide();
 
@@ -279,14 +279,14 @@ void ViewHelper::requestActionWithRemorse(const QString &action)
 
 void ViewHelper::remorseCancelled()
 {
-    printf("tohkbd2-user: %s cancelled\n", qPrintable(m_remorseAction));
+    printf("taskswitcher-user: %s cancelled\n", qPrintable(m_remorseAction));
 
     view->hide();
 }
 
 void ViewHelper::remorseTriggered()
 {
-    printf("tohkbd2-user: executing %s.\n", qPrintable(m_remorseAction));
+    printf("taskswitcher-user: executing %s.\n", qPrintable(m_remorseAction));
 
     view->hide();
 

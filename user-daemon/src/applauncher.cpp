@@ -20,12 +20,12 @@ void AppLauncher::launchApplication(const QString &desktopFilename)
 
     if (!app->isValid())
     {
-        printf("tohkbd2-user: AppLauncher: invalid application: %s\n", qPrintable(desktopFilename));
+        printf("taskswitcher-user: AppLauncher: invalid application: %s\n", qPrintable(desktopFilename));
         emit launchFailed();
         return;
     }
 
-    printf("tohkbd2-user: AppLauncher: starting: %s\n" ,qPrintable(app->name()));
+    printf("taskswitcher-user: AppLauncher: starting: %s\n" ,qPrintable(app->name()));
 
     emit launchSuccess(app->name());
 

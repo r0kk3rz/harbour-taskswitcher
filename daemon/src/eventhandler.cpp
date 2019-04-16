@@ -38,6 +38,11 @@ EventHandler::~EventHandler() {
 void EventHandler::startWorker(const QString &device)
 {
     m_timer->stop();
+
+    QDBusInterface iface(SERVICE_NAME, "/", "", QDBusConnection::sessionBus());
+    iface.call("showKeyboardConnectionNotification", true);
+    iface.call("setOrientationLock", "landscape");
+
     start(device);
 }
 
@@ -93,6 +98,12 @@ void EventHandler::ctrlAltDeletePressed()
 void EventHandler::workerFinished()
 {
     qDebug() << "Worker has finished";
+
+    QDBusInterface iface(SERVICE_NAME, "/", "", QDBusConnection::sessionBus());
+    iface.call("showKeyboardConnectionNotification", false);
+    iface.call("setOrientationLock", "dynamic");
+
+
     m_timer->start();
 }
 
@@ -101,8 +112,7 @@ void EventHandler::checkForDevice()
     QString deviceName = m_deviceName->value().toString(); //"KBMAG7BK";
 
     if (deviceName.isEmpty()) {
-        qDebug() << "Device name not set";
-        return;
+        deviceName = "Integrated keyboard";
     }
     
     QString deviceFile = getDeviceFile(deviceName);

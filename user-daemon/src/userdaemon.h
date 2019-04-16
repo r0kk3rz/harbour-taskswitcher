@@ -10,7 +10,7 @@
 #include <mlite5/MDesktopEntry>
 
 #define SERVICE_NAME "uk.co.piggz.taskswitcher"
-#define KEYMAP_FOLDER "/harbour-tohkbd2"
+#define KEYMAP_FOLDER "/harbour-taskswitcher"
 
 class QDBusInterface;
 class UserDaemon : public QObject
@@ -30,11 +30,9 @@ signals:
     void _lauchApplication(const QString &desktoFilename);
     void _requestActionWithRemorse(const QString &action);
     void _takeScreenShot();
-    void physicalLayoutChanged(QString layout);
 
 public slots:
-    QString getActiveLayout();
-    void setActiveLayout(const QString &value);
+
     QString getOrientationLock();
     void setOrientationLock(const QString &value);
     void launchApplication(const QString &desktopFilename);
@@ -45,17 +43,11 @@ public slots:
     void hideTaskSwitcher() { emit  _hideTaskSwitcher(); }
     void actionWithRemorse(const QString &action);
     void takeScreenShot() { emit _takeScreenShot(); }
-    QString getActivePhysicalLayout();
     QString getPathTo(const QString &filename);
-    void showUnsupportedLayoutNotification();
-    void installKeymaps(const bool &overwrite);
-    void setKeymapLayout(const QString &value);
-    void setKeymapVariant(const QString &value);
     void quit();
 
     void launchSuccess(const QString &appName);
     void launchFailed();
-    void handlePhysicalLayout();
 
 private:
     void showNotification(const QString &text);
