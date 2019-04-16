@@ -5,6 +5,7 @@
 
 #include <QThread>
 #include <QProcess>
+#include <QFileInfo>
 
 AppLauncher::AppLauncher(QObject *parent) :
     QObject(parent)
@@ -28,8 +29,9 @@ void AppLauncher::launchApplication(const QString &desktopFilename)
 
     emit launchSuccess(app->name());
 
+    QFileInfo info(desktopFilename);
     QProcess proc;
-    proc.startDetached("/usr/bin/xdg-open" , QStringList() << desktopFilename);
+    proc.startDetached("/usr/bin/lca-tool" , QStringList() << "--triggerdesktop" << info.fileName());
 
     QThread::msleep(100);
 }
