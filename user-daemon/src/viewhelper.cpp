@@ -1,4 +1,4 @@
-		#include "viewhelper.h"
+#include "viewhelper.h"
 
 #include <stdio.h>
 
@@ -103,7 +103,7 @@ void ViewHelper::showWindow()
                 map.insert("iconId", QString("/usr/share/icons/hicolor/86x86/apps/%1.png").arg(app.icon()));
 
             map.insert("exec", app.exec());
-            map.insert("desktop", desktops.at(i));
+            map.insert("desktop", desktops.at(i));			
             
             desktopFiles.prepend(map);
         }
@@ -139,7 +139,7 @@ void ViewHelper::showWindow()
         //qDebug() << "Looking for " << cmd;
         for (int i = 0; i < desktopFiles.count(); i++) {
             //Check if the command is in the desktop with a param, or at the end or is an android style exec
-            if (desktopFiles.at(i).toMap()["exec"].toString().contains(cmd + " ") || desktopFiles.at(i).toMap()["exec"].toString().endsWith(cmd)  || desktopFiles.at(i).toMap()["exec"].toString().contains(cmd + "/")) {
+            if (desktopFiles.at(i).toMap()["exec"].toString().contains(cmd + " ") || desktopFiles.at(i).toMap()["exec"].toString().split(" ").contains(cmd)  || desktopFiles.at(i).toMap()["exec"].toString().contains(cmd + "/")) {
                 qDebug() << "Found a running app:" << cmd << desktopFiles.at(i).toMap()["exec"].toString() << desktopFiles.at(i).toMap()["desktop"].toString();
                 runningDesktopFiles << desktopFiles.at(i).toMap()["desktop"].toString();
                 if (!appsDesktopFiles.contains(desktopFiles.at(i).toMap()["desktop"].toString())) {
@@ -227,17 +227,20 @@ void ViewHelper::setCurrentApp(int n)
 
 void ViewHelper::launchApplication(int n)
 {
-    QString desktopFile = appsDesktopFiles.at(n);
+    if (appsDesktopFiles.count() > 0 && n < appsDesktopFiles.count() ) {
+        QString desktopFile = appsDesktopFiles.at(n);
 
-    printf("taskswitcher-user: Starting %s\n", qPrintable(desktopFile));
+        printf("taskswitcher-user: Starting %s\n", qPrintable(desktopFile));
 
+        /* Put this launched app to first of the list */
+        appsDesktopFiles.prepend(appsDesktopFiles.takeAt(n));
+        apps.prepend(apps.takeAt(n));
+
+        emit _launchApplication(desktopFile);
+    }
+    
     view->hide();
 
-    /* Put this launched app to first of the list */
-    appsDesktopFiles.prepend(appsDesktopFiles.takeAt(n));
-    apps.prepend(apps.takeAt(n));
-
-    emit _launchApplication(desktopFile);
 }
 
 QVariantList ViewHelper::getCurrentApps()
